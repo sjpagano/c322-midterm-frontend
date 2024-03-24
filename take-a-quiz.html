@@ -3,9 +3,172 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Take a Quiz</title>
+  <link rel="stylesheet" href="navbar.css">
+  <link rel="stylesheet" href="general.css">
+  <link rel="stylesheet" href="cards.css">
+  <link rel="stylesheet" href="take-a-quiz.css">
 </head>
 <body>
+  <ul id = "nav" class="topnav">
+    <li><a  href="index.html">Home</a></li>
+    <li><a  href="add-question.html">Add questions</a></li>
+    <li><a  href="make-a-quiz.html">Create a quiz</a></li>
+    <li><a class="active" href="take-a-quiz.html">Take a quiz</a></li>
+    <li class="right"><a href="#about">About</a></li>
+  </ul>
   
+  <label id = "introText">Here are the available quizzes. Click on a quiz to start taking the quiz.</label>
+  <div id="list" class="cards"></div>
+  <div id="list2" class="cards">
+    <div id = "quizCard" class="card"></div>
+  </div>
+  <div id="list3"></div>
+  <script>
+    let host = "http://localhost:8080";
+    let hideBox = document.getElementById("quizCard");
+    hideBox.style.display = "none";
+      let quizzes = [];
+      let questions = [];
+      displaytheQuizzes();
+      let pos = 0;
+      let score = 0;
+      let answer = "1";
+      async function getAll() {
+        let response = await fetch(host + "/quizzes");
+        let result = await response.json();
+        return result;
+      }
+
+      async function displaytheQuizzes() {
+        if (quizzes.length == 0) {
+          quizzes = await getAll();
+        }
+        let list = document.getElementById("list");
+        list.innerHTML = "";
+
+        for (let quiz of quizzes) {
+          let quizlength = quiz.questionIds.length;
+          let div = document.createElement("div");
+          div.className = "card";
+          let innerHtml = `
+         
+        <div class="container" onclick = "quiz(${quiz.id}, 0)">
+          <h4><b>${quiz.id}</b></h4> 
+          <p>${quiz.title}</p>
+          <form>
+              <label id="questions">(${quizlength} questions)</label><br>  
+          </form> 
+        </div>
+     
+            `;
+          div.innerHTML = innerHtml;
+          list.appendChild(div);
+        }
+      }
+
+      async function quiz(id, dir) {
+        let prev = document.getElementById("previous")
+        let intro = document.getElementById("introText");
+        let nav = document.getElementById("nav");
+        let quizList = document.getElementById("list");
+        let newques = 1;
+        let prescore = 0;
+        hideBox.style.display = "inline";
+        intro.style.display = "none";
+        nav.style.display = "none";
+        quizList.style.display = "none";
+        let response1 = await fetch(host + "/quizzes/" + id);
+        let result1 = await response1.json();
+        questions = result1.questionIds;
+        if (pos == 0 && prev != null) {
+          prev.style.display = "none";
+          if (dir > 0) {
+            pos += dir;
+          }
+        }
+        else if (pos == questions.length-1) {
+          if (dir < 0) {
+            pos += dir;
+          }
+          else {
+            newques = 0;
+          }
+        }
+        else if (prev != null) {
+          prev.style.display = "inline";
+          pos += dir;
+        }
+        else {
+          pos += dir;
+        }
+        let response2 = await fetch(host + "/questions/" + questions[pos]);
+        let question = await response2.json();
+        if (pos == 0) {
+          answer = question.answer;
+        }
+        let form = document.getElementById("formID");
+        var checked;
+        var value;
+        if (form != null) {
+          checked = form.querySelector("input[type=radio]:checked");
+          if (!checked) { 
+    } else {
+        value = checked.value;
+    }
+        }
+        if (value == answer) {
+          prevscore = score;
+          score++;
+        }
+        answer = question.answer;
+        if (dir == -1 && prescore < score) {
+          prevscore = score;
+          score--;
+        }
+          let div = document.getElementById("quizCard");
+          let innerHtml = `
+         
+        <img src="http://localhost:8080/questions/${question.id}/image" onclick="remove(${question.id})" alt="question" style="width:100%">
+        <div class="container">
+          <h4><b>${question.id}</b></h4> 
+          <p>${question.description}</p>
+          <form id="formID">
+              <input type="radio" id="${question.id}" name="qAnswer" value="${question.choices[0]}">
+              <label for="${question.id}">${question.choices[0]}</label><br>
+
+              <input type="radio" id="${question.id}" name="qAnswer" value="${question.choices[1]}">
+              <label for="${question.id}">${question.choices[1]}</label><br>
+
+              <input type="radio" id="${question.id}" name="qAnswer" value="${question.choices[2]}">
+              <label for="${question.id}">${question.choices[2]}</label><br>       
+          </form> 
+          <button id="previous" onclick="quiz(${id},-1)">Previous</button>
+          <button id="next" onclick="quiz(${id},1)">Next</button>
+          <label id = "questionProgress">(Question ${pos+1} out of ${questions.length})</label>
+        </div>
+     
+            `;
+          div.innerHTML = innerHtml;
+          if (pos == 0) {
+            let prev = document.getElementById("previous")
+            prev.style.display = "none";
+          }
+          let quizlength = questions.length;
+          if (dir == 1 && (pos+1) == quizlength && newques == 0) {
+            let list2 = document.getElementById("list2");
+            list2.style.display = "none";
+            let div = document.createElement("div");
+            let list = document.getElementById("list3");
+            let inner = `
+            <label id = "questionFinal">You completed the quiz ${result1.title}</label><br>
+            <label id = "questionFinal2">You scored ${score} out of ${questions.length}.</label>
+            `
+            div.innerHTML = inner;
+            list.appendChild(div);
+            nav.style.display = "block";
+          }
+        }
+  </script>
 </body>
 </html>
