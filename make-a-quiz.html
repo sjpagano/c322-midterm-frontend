@@ -151,9 +151,11 @@
         }
       }
       else {
+        if (quizzes[0] != null) {
         if (quizzes[0].title == text) {
           val = quizzes[0].id;
         }
+      }
       }
         if (val == -1) {
           input.title = text;
