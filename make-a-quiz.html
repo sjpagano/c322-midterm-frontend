@@ -35,7 +35,7 @@
   <div id="list" class="cards"></div>
   <div id="list2" class="cards"></div>
   <script>
-    let host = "https://midterm-30sn.onrender.com";
+    let host = "http://localhost:8080";
       let questions = [];
       let quiz = [];
       let quizzes = [];
@@ -60,7 +60,7 @@
           div.className = "card";
           let innerHtml = `
          
-        <img src="https://midterm-30sn.onrender.com/questions/${question.id}/image" onclick="add(${question.id})" alt="question" style="width:100%">
+        <img src="http://localhost:8080/questions/${question.id}/image" onclick="add(${question.id})" alt="question" style="width:100%">
         <div class="container">
           <h4><b>${question.id}</b></h4> 
           <p>${question.description}</p>
@@ -99,7 +99,7 @@
           div.className = "card";
           let innerHtml = `
          
-        <img src="https://midterm-30sn.onrender.com/questions/${question.id}/image" onclick="remove(${question.id})" alt="question" style="width:100%">
+        <img src="http://localhost:8080/questions/${question.id}/image" onclick="remove(${question.id})" alt="question" style="width:100%">
         <div class="container">
           <h4><b>${question.id}</b></h4> 
           <p>${question.description}</p>
